@@ -1,5 +1,5 @@
 QT -= gui
-
+QT += sql
 CONFIG += c++11 console
 CONFIG -= app_bundle
 
@@ -14,16 +14,16 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    RoutingManager/routingmanager.cpp \
+    Database/database.cpp \
+    Json/JsonGenerator/jsongenerator.cpp \
+    Json/JsonReader/jsonreader.cpp
+LIBS += -lboost_system
 
-unix:!macx: LIBS += -L$$PWD/../Pobrane/poco-1.8.1/lib/Linux/x86_64/ -lCppUnit -lPocoFoundation -lPocoNet -lPocoUtil
-
-DEPENDPATH += $$PWD/../Pobrane/poco-1.8.1/Util/include/
-DEPENDPATH += $$PWD/../Pobrane/poco-1.8.1/Foundation/include/
-DEPENDPATH += $$PWD/../Pobrane/poco-1.8.1/Net/include
-DEPENDPATH += $$PWD/../Pobrane/poco-1.8.1/CppUnit/include/
-
-INCLUDEPATH += $$PWD/../Pobrane/poco-1.8.1/Util/include/
-INCLUDEPATH += $$PWD/../Pobrane/poco-1.8.1/Foundation/include/
-INCLUDEPATH += $$PWD/../Pobrane/poco-1.8.1/Net/include
-INCLUDEPATH += $$PWD/../Pobrane/poco-1.8.1/CppUnit/include/
+HEADERS += \
+    Corw/crow_all.h \
+    RoutingManager/routingmanager.h \
+    Database/database.h \
+    Json/JsonGenerator/jsongenerator.h \
+    Json/JsonReader/jsonreader.h
