@@ -2,34 +2,31 @@
 #define DATABASE_H
 
 #include <QObject>
-#include <QString>
-#include <QtSql>
+#include <QDebug>
+#include <QFile>
+#include <QDir>
+#include <./User/user.h>
+#include <QTextStream>
+#include <QCryptographicHash>
 
-class DataBase : public QObject {
+class Database : public QObject{
     Q_OBJECT
-
 private:
-    DataBase(const DataBase&);
-
+    Database(QObject *parent = nullptr);
 public:
-    DataBase();
-    static DataBase& getDatabase() {
-        static DataBase database;
-        return database;
+    static Database& get(){
+        static Database db;
+        return db;
     }
-
-    ~DataBase();
-    void createAccount(QString login, QString password, QString id, bool enabled);
-    bool accountExist(const QString& login) const;
-    int getAccountId(const QString& login) const;
-    QString getPassword(QString login);
-    bool getAccountEnabled(QString login);
+    bool createAccount(User* user);
+    bool accountExists(QString userName);
+    bool updateAccount(QString oldUserName, User* newUser);
+    User* getAccount(QString name);
 private:
-    void execute(QString cmd);
-    QSqlDatabase db;
-signals:
+    QDir accountsDir =  QDir("accounts");
+    QString format =    QString(".json");
 
 public slots:
 };
 
-#endif  // DATABASE_H
+#endif // DATABASE_H

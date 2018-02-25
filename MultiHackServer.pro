@@ -17,13 +17,11 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += main.cpp \
     RoutingManager/routingmanager.cpp \
     Database/database.cpp \
-    Json/JsonGenerator/jsongenerator.cpp \
-    Json/JsonReader/jsonreader.cpp
+    User/user.cpp
 LIBS += -lboost_system
 
 HEADERS += \
     Corw/crow_all.h \
     RoutingManager/routingmanager.h \
     Database/database.h \
-    Json/JsonGenerator/jsongenerator.h \
-    Json/JsonReader/jsonreader.h
+    User/user.h

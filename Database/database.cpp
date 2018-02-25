@@ -1,91 +1,54 @@
 #include "database.h"
 
-DataBase::DataBase() {
-    db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName("accounts");
-    if (!db.open()) { qDebug() << "ERROR WHILE OPENING DB"; }
-    execute(
-                "create table accounts (login varchar(20), password "
-                "varchar(45), accountId varchar(45), enabled bool)");
+Database::Database(QObject *parent) : QObject(parent){;
+                                                      if (!accountsDir.exists())
+                                                          accountsDir.mkpath(".");
+
+                                                     }
+
+bool Database::createAccount(User *user){
+    if(accountExists(user->name()))
+        return false;
+    QString fPath = QString("%1/%2%3").arg(accountsDir.path()).arg(user->name()).arg(format);
+    QFile file(fPath);
+    qDebug() << file.fileName();
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        return false;
+    QTextStream stream(&file);
+    stream << user->getJson();
+    file.close();
+    if(file.error())
+        return false;
+    return true;
 }
 
-DataBase::~DataBase() { db.close(); }
+bool Database::accountExists(QString userName){
+    QString fPath = QString("%1/%2%3").arg(accountsDir.path()).arg(userName).arg(format);
+    return QFile(fPath).exists();
+}
 
-void DataBase::createAccount(QString login, QString password, QString id, bool enabled) {
-    if (accountExist(login) == false) {
-        QString cmd = QString(
-                    "insert into accounts "
-                    "values('%1', '%2', '%3', '%4')")
-                .arg(login)
-                .arg(password)
-                .arg(id)
-                .arg(enabled);
-        execute(cmd);
+bool Database::updateAccount(QString oldUserName, User *newUser){
+    QString fPath = QString("%1/%2%3").arg(accountsDir.path()).arg(oldUserName).arg(format);
+    QFile file(fPath);
+    if(file.exists()){
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+            return false;
+        QTextStream stream(&file);
+        stream << newUser->getJson();
+        if(file.error())
+            return false;
+        file.rename(newUser->name());
+        return true;
     }
 }
 
-
-bool DataBase::accountExist(const QString& login) const {
-    QSqlQuery query;
-    QString cmd =
-            QString("SELECT * FROM accounts WHERE login=\"%1\"").arg(login);
-    query.exec(cmd);
-    while (query.next()) {
-        if (query.value(0).toString() == login) {
-            // exist
-            qDebug() << "return true";
-            return true;
-        }
+User *Database::getAccount(QString name){
+    QString fPath = QString("%1/%2%3").arg(accountsDir.path()).arg(name).arg(format);
+    QFile file(fPath);
+    if(file.exists()){
+        file.open(QIODevice::ReadWrite);
+        QString data = QString::fromStdString(file.readAll().toStdString());
+        User *u = new User(data);
+        return u;
     }
-    qDebug() << "return false";
-    return false;
-}
-
-int DataBase::getAccountId(const QString &login) const{
-    QSqlQuery query;
-    QString cmd =
-            QString("SELECT * FROM accounts WHERE login=\"%1\"").arg(login);
-    query.exec(cmd);
-    while (query.next()) {
-        if (query.value(0).toString() == login) {
-            // exist
-            return query.value(2).toInt();
-        }
-    }
-    qDebug() << "Error while getting accountId of  " << login;
-    return 404;  // error
-}
-QString DataBase::getPassword(QString login) {
-    QSqlQuery query;
-    QString cmd =
-            QString("SELECT * FROM accounts WHERE login=\"%1\"").arg(login);
-    query.exec(cmd);
-    while (query.next()) {
-        if (query.value(0).toString() == login) {
-            // exist
-            return query.value(1).toString();
-        }
-    }
-    qDebug() << "Error while getting password of  " << login;
-    return "error";  // error
-}
-
-bool DataBase::getAccountEnabled(QString login){
-    QSqlQuery query;
-    QString cmd =
-            QString("SELECT * FROM accounts WHERE login=\"%1\"").arg(login);
-    query.exec(cmd);
-    while (query.next()) {
-        if (query.value(0).toString() == login) {
-            // exist
-            return query.value(3).toBool();
-        }
-    }
-    qDebug() << "Error while getting enabled of  " << login;
-    return false;
-}
-
-void DataBase::execute(QString cmd) {
-    QSqlQuery query;
-    query.exec(cmd);
 }

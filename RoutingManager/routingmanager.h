@@ -4,14 +4,15 @@
 #include <QObject>
 #include <./Corw/crow_all.h>
 #include <./Database/database.h>
-#include <./Json/JsonGenerator/jsongenerator.h>
-#include <./Json/JsonReader/jsonreader.h>
+#include <./User/user.h>
+#include <QCryptographicHash>
 #include <QDebug>
 
 class RoutingManager : public QObject {
     Q_OBJECT
 public:
     explicit RoutingManager();
+
 signals:
 
 };
